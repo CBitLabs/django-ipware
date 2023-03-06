@@ -57,7 +57,7 @@ class IPv4TestCase(TestCase):
             'HTTP_X_FORWARDED_FOR': '3ffe:1900:4545:3:200:f8ff:fe21:67cf, 74dc::02ba, 74dc::02bb',
         }
         result = get_client_ip(request, proxy_order='right-most')
-        self.assertEqual(result, ("74dc::02bb", True))
+        self.assertEqual(result, ("74dc::2bb", True))
 
     def test_meta_multi_precedence_private_first(self):
         request = HttpRequest()
@@ -179,7 +179,7 @@ class IPv6EncapsulationOfIPv4TestCase(TestCase):
     def test_ipv6_encapsulation_of_ipv4_private(self):
         request = HttpRequest()
         request.META = {
-            'HTTP_X_FORWARDED_FOR': '::ffff:127.0.0.1',
+            'HTTP_X_FORWARDED_FOR': '0::ffff:127.0.0.1',
         }
         result = get_client_ip(request)
         self.assertEqual(result, ('127.0.0.1', False))
@@ -187,7 +187,7 @@ class IPv6EncapsulationOfIPv4TestCase(TestCase):
     def test_ipv6_encapsulation_of_ipv4_public(self):
         request = HttpRequest()
         request.META = {
-            'HTTP_X_FORWARDED_FOR': '::ffff:177.139.233.139',
+            'HTTP_X_FORWARDED_FOR': ' ::ffff:177.139.233.139 ',
         }
         result = get_client_ip(request)
         self.assertEqual(result, ('177.139.233.139', True))

@@ -7,10 +7,31 @@ def cleanup_ip(ip):
     """
     Given ip address string, it cleans it up
     """
-    ip = ip.strip().lower()
-    if (ip.startswith('::ffff:')):
-        return ip.replace('::ffff:', '')
-    return ip
+    clean_ip = None
+    ip = ip.strip()
+    try:
+        # Try v4
+        clean_ip = socket.inet_ntop(socket.AF_INET, socket.inet_pton(socket.AF_INET, ip))
+    except AttributeError:  # pragma: no cover
+        try:  # Fall-back on legacy API
+            # Note that inet_ntoa will convert 127.1 whereas inet_pton will not.
+            clean_ip = socket.inet_ntoa(socket.inet_aton(ip))
+        except AttributeError:
+            pass
+    except socket.error:
+        pass
+
+    if not clean_ip:
+        try:
+            # Try v6
+            clean_ip = socket.inet_ntop(socket.AF_INET6, socket.inet_pton(socket.AF_INET6, ip))
+            if clean_ip.startswith('::ffff:'):
+                return clean_ip.replace('::ffff:', '')
+
+        except socket.error:
+            pass
+
+    return clean_ip or ip
 
 
 def is_valid_ipv4(ip_str):
@@ -118,8 +139,10 @@ def get_best_ip(last_ip, next_ip):
     """
     if last_ip is None:
         return next_ip
-    if is_public_ip(last_ip) and not is_public_ip(next_ip):
+    clean_last_ip = cleanup_ip(last_ip)
+    clean_next_ip = cleanup_ip(next_ip)
+    if is_public_ip(clean_last_ip) and not is_public_ip(clean_next_ip):
         return last_ip
-    if is_private_ip(last_ip) and is_loopback_ip(next_ip):
+    if is_private_ip(clean_last_ip) and is_loopback_ip(clean_next_ip):
         return last_ip
     return next_ip

@@ -35,8 +35,27 @@ class IPv4TestCase(TestCase):
         ip = '177.139.233.139'
         self.assertTrue(util.is_public_ip(ip))
 
+        ip = ' 177.139.233.139 '
+        self.assertTrue(util.is_public_ip(ip))
+
         ip = '74dc::02ba'
         self.assertTrue(util.is_public_ip(ip))
+
+        ip = '2001:db8::'
+        self.assertFalse(util.is_public_ip(ip))
+
+    def test_cleanup_ip(self):
+        ip = '2001:0db8::'
+        self.assertEqual('2001:db8::', util.cleanup_ip(ip))
+
+        ip = ' 2001:0db8::0 '
+        self.assertEqual('2001:db8::', util.cleanup_ip(ip))
+
+        ip = ' 1.2.3.4 '
+        self.assertEqual('1.2.3.4', util.cleanup_ip(ip))
+
+        ip = ' 0:0::ffff:1.2.3.4 '
+        self.assertEqual('1.2.3.4', util.cleanup_ip(ip))
 
     def test_is_loopback_ip(self):
         ip = '127.0.0.1'

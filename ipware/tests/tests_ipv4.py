@@ -268,8 +268,8 @@ class IPv4TestCase(TestCase):
         request = HttpRequest()
         request.META = {
             'HTTP_X_REAL_IP': '192.168.1.1',
-            'REMOTE_ADDR': '177.139.233.139',
-            'HTTP_X_FORWARDED_FOR': '177.139.233.139, 198.84.193.157, 198.84.193.158',
+            'REMOTE_ADDR': ' 177.139.233.139 ',
+            'HTTP_X_FORWARDED_FOR': ' 177.139.233.139, 198.84.193.157, 198.84.193.158',
         }
         ip = get_client_ip(request, request_header_order=['HTTP_X_FORWARDED_FOR'])
         self.assertEqual(ip, ("177.139.233.139", True))
